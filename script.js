@@ -98,6 +98,9 @@ class App {
     inputType.addEventListener('change', this._toggleElevationField.bind(this));
 
     containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
+
+    // delete from local storage
+    containerWorkouts.addEventListener('click', this.deleteOne.bind(this));
   }
   _loadMap(position) {
     // console.log(position);
@@ -223,7 +226,7 @@ class App {
     this._hideform(workout);
 
     // Saving all workouts to local storage
-    this._setLocalStorage();
+    this._setLocalStorage(workout);
   }
 
   // method to render workout marker on mao and make it stay
@@ -270,7 +273,7 @@ class App {
       <span class="workout__unit">min/km</span>
     </div>
     <div class="workout__details">
-      <span class="workout__icon">🦶🏼</span>
+      <span class="workout__icon" value = 'delete'>🦶🏼</span>
       <span class="workout__value">${workout.cadence}</span>
       <span class="workout__unit">spm</span>
     </div>
@@ -280,7 +283,7 @@ class App {
       html += `
         <div class="workout__details">
           <span class="workout__icon">⚡️</span>
-          <span class="workout__value">${workout.speed.toFixed(1)}</span>
+          <span class="workout__value">${workout.speed}</span>
           <span class="workout__unit">km/h</span>
         </div>
         <div class="workout__details">
@@ -308,29 +311,58 @@ class App {
       },
     });
 
-    workout.click();
+    // workout.click();
   }
 
   // saving all workout on local storage
-  _setLocalStorage() {
-    localStorage.setItem('workouts', JSON.stringify(this.#workouts));
+  _setLocalStorage(workout) {
+    localStorage.setItem(`${workout.id}`, JSON.stringify(this.#workouts));
   }
 
   // getting all workout from local storage
   _getLocalStorage() {
     // this gets the data and coverts it to an object
-    const data = JSON.parse(localStorage.getItem('workouts'));
-    if (!data) return;
+    // const data = JSON.parse(localStorage.getItem('workouts'));
+    // if (!data) return;
 
-    this.#workouts = data;
-    this.#workouts.forEach(work => {
-      this._renderWorkout(work);
-      // this._renderWorkoutMarker(work);
-    });
+    // this.#workouts = data;
+    // this.#workouts.forEach(work => {
+    //   this._renderWorkout(work);
+    //   // this._renderWorkoutMarker(work);
+    // });
+
+    // function allStorage() {
+
+    var values = [],
+      keys = Object.keys(localStorage),
+      i = keys.length;
+
+    while (i--) {
+      console.log(localStorage.getItem(keys[i]));
+      const mine = JSON.parse(localStorage.getItem(keys[i]));
+      console.log('white');
+      mine.forEach(work => {
+        this._renderWorkout(work);
+        // this._renderWorkoutMarker(work);
+      });
+    }
+
+    // this._renderWorkout(archive);
+    // return archive;
   }
-  reset() {
-    localStorage.removeItem('workouts');
-    location.reload();
+
+  reset(localStorage) {
+    // localStorage.removeItem();
+    return (localStorage = null);
+    // location.reload();
+  }
+
+  deleteOne(e) {
+    const data = e.target.closest('.workout');
+    if (e.target.matches('span')) {
+      localStorage.removeItem(`${data.dataset.id}`);
+      location.reload();
+    }
   }
 }
 
